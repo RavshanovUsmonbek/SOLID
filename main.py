@@ -21,7 +21,13 @@ class PaymentProcessor(abc.ABC):
         pass
 
 
-class SMSAuth:
+class Authorizer(abc.ABC):
+    @abc.abstractmethod
+    def is_authorized(self):
+        pass
+
+
+class SMSAuth(Authorizer):
     authorized = False
 
     def verify_code(self, code):
@@ -33,7 +39,7 @@ class SMSAuth:
 
 
 class DebitPayment(PaymentProcessor):
-    def __init__(self, security_code, authorizer: SMSAuth):
+    def __init__(self, security_code, authorizer: Authorizer):
         self.security_code = security_code
         self.authorizer = authorizer
     

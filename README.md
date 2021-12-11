@@ -34,16 +34,26 @@
         Resolving: 
         To be complaint with that principle we need to remove varying parameters from pay method which is "security_code" in our example. And recieve thier values in initialization phase of class
 
-    4. Interface segregation: segregate interfaces as per the requirements of program, 
-        rather than one general purpose implementation
+    4. Interface segregation: segregate interfaces as per the requirements of the program, 
+        rather than one general-purpose implementation
 
         Violation:
-        In our code, PaymentProcess interface has auth_sms method to be implement. However, 
-        the method is not implemented in all its descendents, specifically in CreditPayment.
-        It raises an exception violating both Interface segregation and liskov substitution.
+        In our code, PaymentProcess interface has the auth_sms method to be implemented. However, 
+        the method is not implemented in all its descendants, specifically in CreditPayment.
+        It raises an exception violating both Interface segregation and Liskov substitution.
 
         Resolving:
         We have two options:
-            1) Creating a more specific interfaces
-            2) Create a seperate class for authentication feature and compose it with Payment class
+            1) Creating more specific interfaces
+            2) Create a separate class for the authentication feature and compose it with Payment class
+    
+    5. Dependency Inversion: Removing dependency between two concrete classes, rather move dependency type to more abstract type like interfaces.
+        
+        Violation: 
+        In our code, we have dependency among SMSAuth and DebitPayment, PayPalPayment.
+
+        Resolving:
+        We will create a new interface Authorizer and change type hint to that interface
+        Of course, in python, it doesn't change anything but only increases readability.
+        That way we can later pass other authorizer-type objects to PaymentProcessor classes.
 
