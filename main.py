@@ -17,15 +17,18 @@ import abc
 
 class PaymentProcessor(abc.ABC):
     @abc.abstractmethod
-    def auth_sms(self, code):
-        pass
-
-    @abc.abstractmethod
     def pay(self, order):
         pass
 
 
-class DebitPayment(PaymentProcessor):
+class PaymentProcess_SMS(PaymentProcessor):
+    @abc.abstractmethod
+    def auth_sms(self, code):
+        pass
+
+
+
+class DebitPayment(PaymentProcess_SMS):
     def __init__(self, security_code):
         self.security_code = security_code
         self.verified = False
@@ -45,9 +48,6 @@ class DebitPayment(PaymentProcessor):
 class CreditPayment(PaymentProcessor):
     def __init__(self, security_code):
         self.security_code = security_code
-    
-    def auth_sms(self, code):
-        raise Exception("Credit card payments don't support SMS code authorization")
 
     def pay(self, order):
         print("Processing credit payment type")
@@ -55,7 +55,7 @@ class CreditPayment(PaymentProcessor):
         order.status="paid"
 
 
-class PayPalPayment(PaymentProcessor):
+class PayPalPayment(PaymentProcess_SMS):
     def __init__(self, email_address):
         self.email_address = email_address
         self.verified = False
@@ -79,5 +79,6 @@ order.add_item("USB cable", 2, 5)
 
 processor = PayPalPayment("ravshanov@gmail.com")
 print(order.total_price())
+processor.auth_sms("0895453")
 processor.pay(order)
 

@@ -31,5 +31,19 @@
         be compatible with PaymentProcessor interface's pay method signature. That tells us that our code is not complaint
         with Liskov substitution principle.
 
-        Resolving: To be complaint with that principle we need to remove varying parameters from pay method
-        which is "security_code" in our example. And recieve thier values in initialization phase of class
+        Resolving: 
+        To be complaint with that principle we need to remove varying parameters from pay method which is "security_code" in our example. And recieve thier values in initialization phase of class
+
+    4. Interface segregation: segregate interfaces as per the requirements of program, 
+        rather than one general purpose implementation
+
+        Violation:
+        In our code, PaymentProcess interface has auth_sms method to be implement. However, 
+        the method is not implemented in all its descendents, specifically in CreditPayment.
+        It raises an exception violating both Interface segregation and liskov substitution.
+
+        Resolving:
+        We have two options:
+            1) Creating a more specific interfaces
+            2) Create a seperate class for authentication feature and compose it with Payment class
+
