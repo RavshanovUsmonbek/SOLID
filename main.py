@@ -21,24 +21,24 @@ class PaymentProcessor(abc.ABC):
         pass
 
 
-class PaymentProcess_SMS(PaymentProcessor):
-    @abc.abstractmethod
-    def auth_sms(self, code):
-        pass
+class SMSAuth:
+    authorized = False
 
-
-
-class DebitPayment(PaymentProcess_SMS):
-    def __init__(self, security_code):
-        self.security_code = security_code
-        self.verified = False
-    
-    def auth_sms(self, code):
+    def verify_code(self, code):
         print(f"Verification SMS code {code}")
-        self.verified = True
+        self.authorized = True
+    
+    def is_authorized(self):
+        return self.authorized
+
+
+class DebitPayment(PaymentProcessor):
+    def __init__(self, security_code, authorizer: SMSAuth):
+        self.security_code = security_code
+        self.authorizer = authorizer
     
     def pay(self, order):
-        if not self.verified:
+        if not self.authorizer.is_authorized():
             raise Exception("Not authorized")
         print("Processing debit payment type")
         print(f"Verifying security code: {self.security_code}")
@@ -55,30 +55,28 @@ class CreditPayment(PaymentProcessor):
         order.status="paid"
 
 
-class PayPalPayment(PaymentProcess_SMS):
-    def __init__(self, email_address):
+class PayPalPayment(PaymentProcessor):
+    def __init__(self, email_address, authorizer: SMSAuth):
         self.email_address = email_address
-        self.verified = False
+        self.authorizer = authorizer
     
-    def auth_sms(self, code):
-        print(f"Verification SMS code {code}")
-        self.verified = True
-
     def pay(self, order):
-        if not self.verified:
+        if not self.authorizer.is_authorized():
             raise Exception("Not authorized")
         print("Processing paypal payment type")
         print(f"Verifying email address: {self.email_address}")
         order.status="paid"
 
 
+
 order = Order()
 order.add_item("Keyboard", 1, 50)
 order.add_item("SSD", 1, 150)
 order.add_item("USB cable", 2, 5)
-
-processor = PayPalPayment("ravshanov@gmail.com")
 print(order.total_price())
-processor.auth_sms("0895453")
+
+authorizer = SMSAuth()
+processor = DebitPayment("098786", authorizer)
+authorizer.verify_code(895453)
 processor.pay(order)
 
