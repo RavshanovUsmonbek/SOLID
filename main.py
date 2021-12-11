@@ -1,5 +1,3 @@
-
-
 class Order:
     items = []
     quantities = []
@@ -15,10 +13,13 @@ class Order:
         return sum(map(lambda p, q: p*q, self.prices, self.quantities))
 
 
-
 import abc
 
 class PaymentProcessor(abc.ABC):
+    @abc.abstractmethod
+    def auth_sms(self, code):
+        pass
+
     @abc.abstractmethod
     def pay(self, order):
         pass
@@ -27,8 +28,15 @@ class PaymentProcessor(abc.ABC):
 class DebitPayment(PaymentProcessor):
     def __init__(self, security_code):
         self.security_code = security_code
+        self.verified = False
+    
+    def auth_sms(self, code):
+        print(f"Verification SMS code {code}")
+        self.verified = True
     
     def pay(self, order):
+        if not self.verified:
+            raise Exception("Not authorized")
         print("Processing debit payment type")
         print(f"Verifying security code: {self.security_code}")
         order.status = "paid"
@@ -37,6 +45,9 @@ class DebitPayment(PaymentProcessor):
 class CreditPayment(PaymentProcessor):
     def __init__(self, security_code):
         self.security_code = security_code
+    
+    def auth_sms(self, code):
+        raise Exception("Credit card payments don't support SMS code authorization")
 
     def pay(self, order):
         print("Processing credit payment type")
@@ -47,8 +58,15 @@ class CreditPayment(PaymentProcessor):
 class PayPalPayment(PaymentProcessor):
     def __init__(self, email_address):
         self.email_address = email_address
+        self.verified = False
+    
+    def auth_sms(self, code):
+        print(f"Verification SMS code {code}")
+        self.verified = True
 
     def pay(self, order):
+        if not self.verified:
+            raise Exception("Not authorized")
         print("Processing paypal payment type")
         print(f"Verifying email address: {self.email_address}")
         order.status="paid"
